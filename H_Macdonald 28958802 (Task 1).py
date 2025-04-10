@@ -1,137 +1,135 @@
 # Task 1 Harrison Macdonald
 # Student number: 28958802
-
+import numpy
 #list to store all user inputted numbers
-user_number_list = []
+UserNumberList = []
 #list stores all Even numbers 
-odd_number_list = []
+OddNumberList = []
 #list stores all Odd numbers
-even_number_list = []
+EvenNumberList = []
 #counts the number of unique numbers 
-total_unique_numbers = 0
+TotalUniqueNumbers = 0
 #true variable for simplicity
-running = True
+Running = True
 
 #function to gather user input, numbers and options
 def user_numbers():
-    global user_number_list
-    while running:
+    global UserNumberList
+    while Running:
         try: 
-            print(f"Inputted Numbers are: {user_number_list}"
-                   if user_number_list else "No Inputted Numbers")
-            user_input = int(input("Please enter a positive integer: \n>"))
+            print(f"Inputted Numbers are: {UserNumberList}"
+                   if UserNumberList else "No Inputted Numbers")
+            UserInput = int(input("Please enter a positive integer: \n>"))
             #stops the user entering a non-positive number
-            if user_input <= 0:
+            if UserInput <= 0:
                 print("Only enter Positive integers, Please try again.")
                 continue
             #adds the users numbers to the list 
-            user_number_list.append(user_input)
-            print(f"Added {user_input} to the List.")
+            UserNumberList.append(UserInput)
+            print(f"Added {UserInput} to the List.")
         except ValueError:
             print("Invalid Input. PLease pick a non-negative whole number only.")
             
         #options to allow the user to input more number
         try:
-            options = int(input("Do you want to Add additional numbers?"
+            Options = int(input("Do you want to Add additional numbers?"
                                 "[1. Yes] [2. No]"))
-            if options== 2:
+            if Options == 2:
                 break
         except ValueError:
             print("Invalid input. Please enter either 1 or 2.")
 
             
 #function to seperate all duplicate numbers into another list
-def duplicate_removal(numbers):
-    global duplicate_numbers
-    global seen_numbers
+def duplicate_removal(UserNumberList):
+    global DuplicateNumbers
+    global SeenNumbers
 
-    duplicate_numbers = []
-    seen_numbers = {}
+    DuplicateNumbers = []
+    SeenNumbers = {}
 
     #looping throught all numbers to check duplicate 
-    for number in numbers:
-        if number not in duplicate_numbers:
-            duplicate_numbers.append(number)
-    removed_duplicate = len(numbers) - len(duplicate_numbers)
-    print(f"Removed {removed_duplicate} numbers from the list")
-    return duplicate_numbers
+    for Number in UserNumberList:
+        if Number not in DuplicateNumbers:
+            DuplicateNumbers.append(Number)
+    if Number in UserNumberList not in DuplicateNumbers:
+        RemovedDuplicates = []
+        RemovedDuplicates.append(Number)
+    print(f"Removed {RemovedDuplicates} numbers from the list")
+    return DuplicateNumbers
 
 # Checking for unique numbers and assigning them to a dictionary.
 # Counting the number of unique numbers.
-def unique_numbers(numbers):
-    number_counts = {}  
-    unique_numbers_list = []
-    for number in numbers:
-        number_counts [number] =+ 1
-        for number in numbers:
-            if numbers in tuple(number_counts) == 1:
-                unique_numbers_list.append(number)
+def unique_numbers(Numbers):
+    NumberCounts = {}  
+    UniqueNumbersList = []
+    for number in Numbers:
+        NumberCounts [number] =+ 1
+
+    for number in Numbers:
+        if Numbers in tuple(NumberCounts) == 1:
+            UniqueNumbersList.append(number)
         continue
-    print(number_counts)
+    print(NumberCounts)
 
 #function to move Odd and Even numbers into seperate lists
-def even_odd_seperate(numbers):
-    for number in numbers:
-        if number % 2 == 0:
-            even_number_list.append(number)
+def even_odd_seperate(Numbers):
+    for Number in Numbers:
+        if Number % 2 == 0:
+            EvenNumberList.append(Number)
         else:
-            odd_number_list.append(number)
-
-
-
+            OddNumberList.append(Number)
 
 #function to calculate the mean of the users numbers
-def mean(numbers):
-    total = 0
-    count = 0
+def mean(Numbers):
+    Total = 0
+    Count = 0
 
-    for number in numbers:
-        total += number
-        count += 1
-    return total / count
+    for Number in Numbers:
+        Total += Number
+        Count += 1
+    return Total / Count
 
 #function to calculate the product of the users numbers
-def product(numbers):
-    product = 1
-
-    for number in numbers:
-        product *= number
-    return product
 
 #function to calculate the variance of the users numbers
-def variance(numbers):
-    global means
-    means = mean(numbers)
-    squared_differences = 0
+def variance(Numbers):
+    global Means
+    Means = mean(Numbers)
+    SquaredDifferences = 0
     count = 0
 
-    for number in numbers:
-        squared_differences += (number - means) ** 2
+    for Number in Numbers:
+        SquaredDifferences += (Number - Means) ** 2
         count += 1 
-    return squared_differences / count
+    return SquaredDifferences / count
 
 #function to calculate the reange of the users numbers
-def range(numbers):
-    return numbers[-1] - numbers[0]
+def range(Numbers):
+    return Numbers[-1] - Numbers[0]
+
 def main():
     #Execution of the functions to the user
     print("| Task 1 |")
     user_numbers()
-    duplicate_removal(user_number_list)
-    unique_numbers(user_number_list)
-    even_odd_seperate(user_number_list)
+    duplicate_removal(UserNumberList)
+    unique_numbers(UserNumberList)
+    even_odd_seperate(UserNumberList)
 
     #all functions in use to provide all information required
-    print(f"\nYour Numbers: \n{user_number_list}")
-    print(f"Unique Numbers: {len(duplicate_numbers)}")
-    print(f"Removed Numbers: {duplicate_numbers}")
+    print(f"\nYour Numbers: \n{UserNumberList}")
+    print(f"Unique Numbers: {len(DuplicateNumbers)}")
+    print(f"Removed Numbers: {DuplicateNumbers}")
+
     #telling the user if there are no odd or even numbers in the list
-    if len(odd_number_list) == 0:
+    if len(OddNumberList) == 0:
         print("There are no Odd Numbers")
-    if len(even_number_list) == 0:
+
+    if len(EvenNumberList) == 0:
         print("There are no Even Numbers")
-    print(f"product: {product(user_number_list)}")
-    print(f"Range: {range(user_number_list)}")
-    print(f"Variance {variance(user_number_list)}")
+
+    #print(f"product: {product(UserNumberList)}")
+    print(f"Range: {range(UserNumberList)}")
+    print(f"Variance {variance(UserNumberList)}")
 	
 main()
