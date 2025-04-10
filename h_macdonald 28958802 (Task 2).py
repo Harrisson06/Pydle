@@ -1,143 +1,145 @@
 # Task 1 Harrison Macdonald
 # Student number: 28958802
 
-#All Imports to be placed here.
+# All Imports to be placed here.
 import random
 import time
 
-#Constants
-max_guesses = 6
-
-#Allows user to input a username 
+# Constants
+MaxGuesses = 6
+WordsetSize4 = 4
+WordsetSize5 = 5
+WordsetSize6 = 6
+# Allows user to input a username 
 def username_input():
-    global username
-    username = input("Pick a username\n> ")
+    global Username
+    Username = input("Pick a username\n> ")
     
-    return username
+    return Username
 # Function to load words from the dictionary.txt file
 def load_words():
-    dictionary = open(r"dictionary.txt", mode="r")
+    Dictionary = open(r"dictionary.txt", mode="r")
     #reading the file and giving it a variable name: text
-    text = dictionary.readlines()
-    dictionary.close()
+    text = Dictionary.readlines()
+    Dictionary.close()
     #list of all words in the dictionary
-    wordset = []
+    Wordset = []
     for strip in text:
-        wordset.append(strip.strip().lower())
-    return wordset
+        Wordset.append(strip.strip().lower())
+    return Wordset
 
 # Function to select a random word of the specified length from the words_list
-def select_random_word(wordset):
-    global valid_five_letters
-    five_letter = []
-    for word in wordset:
-        if len(word) == 5:
-            five_letter.append(word)
-    valid_five_letters = five_letter
-    return random.choice(five_letter)
+def select_random_word(Wordset):
+    global ValidFiveLetters
+    FiveLetter = []
+    for Word in Wordset:
+        if len(Word) == 5:
+            FiveLetter.append(Word)
+    ValidFiveLetters = FiveLetter
+    return random.choice(FiveLetter)
 
 
 # Function to get the user's guess and ensure it is valid
 def get_guess():
-    global guess
+    global Guess
     while True:
-        guess = input("Please make your guess\n>")
-        guess = guess.lower()
-        return guess
+        Guess = input("Please make your guess\n>")
+        Guess = Guess.lower()
+        return Guess
 
 # Function to provide feedback on the guess (clue generation)
-def provide_clue(guess):
+def provide_clue(Guess):
     #checking for the correct characters in every slot ["*"]
-    handle_turns(guess, actual_word)
-    clue = list("_____")
-    for i in range(len(guess)):
-        if guess[i] == actual_word[i]:
-            clue[i] = '*'
+    handle_turns(Guess, ActualWord)
+    Clue = list("_____")
+    for i in range(len(Guess)):
+        if Guess[i] == ActualWord[i]:
+            Clue[i] = '*'
 
     #checking for right letter wrong position ["+"]
-    for i in range(len(guess)):
+    for i in range(len(Guess)):
         #check the character if it isnt already marked "*"
-        if clue[i] == '_': 
-            if guess[i] in actual_word:
-                clue[i] = '+' 
-    return "".join(clue)
+        if Clue[i] == '_': 
+            if Guess[i] in ActualWord:
+                Clue[i] = '+' 
+    return "".join(Clue)
 
 # Function to handle the player's turn.
 # It can return if the guess was correct.
 # The clue and previous guesses.
-def handle_turns(guess, actual_word):
+def handle_turns(guess, ActualWord):
    while True:
-        if len(guess) != len(actual_word):
+        if len(guess) != len(ActualWord):
            return print("Error: Guess needs to be five letters long.")
-        elif guess not in valid_five_letters:
+        elif guess not in ValidFiveLetters:
             return print(f"Error: Word not found in dictionary.")
-        elif guess == actual_word:
+        elif guess == ActualWord:
             return print("Congratulations, the word is correct")
-
 
 # Function to display the game result (win/loss)
 def display_result(is_winner, answer):
-    global time_taken
+    global TimeTaken
+
     # Win condition
     if is_winner:
-        time_end = time.time() 
+        TimeEnd = time.time() 
         print("Congratulations! You have won the game")
-        time_taken = int(time_end - time_start)
-        print(f"Time taken:", time_taken, "Seconds")
+        TimeTaken = int(TimeEnd - TimeStart)
+        print(f"Time taken:", TimeTaken, "Seconds")
 
         # Opens the winners.txt file and enters the username and timetaken to solve the game.
-        with open(r"winners.txt", "r") as leaderboard_Winners:
-            leaderboard_Winners.write(f"{username} | {time_taken} seconds\n")
+        with open(r"winners.txt", "a") as leaderboard_Winners:
+            leaderboard_Winners.write(f"{Username} | {TimeTaken} seconds\n")
 
     else:
-        time_end = time.time()
-        time_taken = int(time_end - time_start)
+        TimeEnd = time.time()
+        TimeTaken = int(TimeEnd - TimeStart)
         print("You have lost the game")
         print(f"The correct word was", answer)
 
         # Opens the Losers.txt file and enters the username and timetaken at the attempt.
         with open(r"Losers.txt", "a") as leaderboard_Losers:
-            leaderboard_Losers.write(f"{username} | {time_taken} seconds\n")
+            leaderboard_Losers.write(f"{Username} | {TimeTaken} seconds\n")
 
 # Function to handle the player's decision to give up
-def give_up(actual_word):
+def give_up(ActualWord):
     print("\nYou have chosen to exit, Thanks for playing")
-    print("The correct word was", actual_word)
+    print("The correct word was", ActualWord)
 
 
 
 # Function to handle the main game loop
 def main():
-    global actual_word
-    global time_start
+    global ActualWord
+    global TimeStart
     print("<| Welcome to Wordle |>")
     print("\n<<|To exit the game please type: [exit] |>>\n  ")
     username_input()
 
     # Getting the actual word for guessing
-    actual_word = select_random_word(load_words())
+    ActualWord = select_random_word(load_words())
 
     # Debug answer
-    print(actual_word)
+    print(ActualWord)
     
     # Starting a timer for the winning.txt file.
-    time_start = time.time()
+    TimeStart = time.time()
 
     # Guessing system for the game
-    guess_count = max_guesses
-    while guess_count != 0:
-        print("You have", guess_count, "guesses left")
+    GuessCount = MaxGuesses
+    while GuessCount != 0:
+        print("You have", GuessCount, "guesses left")
         guess = get_guess()
-        if guess == actual_word:
-            display_result(True, actual_word)
+        if guess == ActualWord:
+            display_result(True, ActualWord)
             return
         elif guess == "exit":
-            give_up(actual_word)
+            give_up(ActualWord)
             return
         else:
             print(provide_clue(guess))
-        guess_count -= 1
+        GuessCount -= 1
 
-    display_result(False, actual_word)
+    display_result(False, ActualWord)
 
 main()
