@@ -16,7 +16,7 @@ def username_input():
     return username
 # Function to load words from the dictionary.txt file
 def load_words():
-    dictionary = open(r"C:\A UNIWORK\python\Final peices\dictionary.txt", mode="r")
+    dictionary = open(r"dictionary.txt", mode="r")
     #reading the file and giving it a variable name: text
     text = dictionary.readlines()
     dictionary.close()
@@ -86,17 +86,17 @@ def display_result(is_winner, answer):
         print(f"Time taken:", time_taken, "Seconds")
 
         # Opens the winners.txt file and enters the username and timetaken to solve the game.
-        leaderboard_Winners = []
-        with open(r"C:\A UNIWORK\python\Final peices\winners.txt", "r") as temp:
-            leaderboard_Winners = [line.replace("\n", " ") for line in temp.readlines()]
-            for i in leaderboard_Winners:
-                return i
+        with open(r"winners.txt", "r") as leaderboard_Winners:
+            leaderboard_Winners.write(f"{username} | {time_taken} seconds\n")
+
     else:
         time_end = time.time()
         time_taken = int(time_end - time_start)
         print("You have lost the game")
         print(f"The correct word was", answer)
-        with open(r"C:\A UNIWORK\python\Final peices\Losers.txt", "a") as leaderboard_Losers:
+
+        # Opens the Losers.txt file and enters the username and timetaken at the attempt.
+        with open(r"Losers.txt", "a") as leaderboard_Losers:
             leaderboard_Losers.write(f"{username} | {time_taken} seconds\n")
 
 # Function to handle the player's decision to give up
