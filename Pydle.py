@@ -4,6 +4,8 @@
 # All Imports to be placed here.
 import random
 import time
+import tkinter
+tkinter.BaseWidget = 100
 
 # Constants
 MaxGuesses = 6
