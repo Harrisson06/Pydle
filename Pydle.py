@@ -4,20 +4,137 @@
 # All Imports to be placed here.
 import random
 import time
-import tkinter
-
+import tkinter as tk
+from tkinter import messagebox
 
 # Constants
 MaxGuesses = 6
-WordsetSize4 = 4
-WordsetSize5 = 5
-WordsetSize6 = 6
-# Allows user to input a username 
-def username_input():
-    global Username
-    Username = input("Pick a username\n> ")
+Word_Length = 5
+BUTTON_COLOR = "#D3D6DA"
+CORRECT_COLOR = "#6AAA64"
+PRESENT_COLOR = "#C9B458"
+ABSENT_COLOR = "#787C7E"
+
+class WordleGUI:
+
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Pydle")
+        self.window.resizable(False, False)
+
+        self.current_row = 0
+        self.current_col = 0
+        self.game_over = False
+
+        # Load words and select target word
+        self.word_list = load_words()
+        self.target_word = select_random_word(self.word_list)
+        self.time_start = time.time()
+
+        # Create the grid.
+        self.cells = []
+        for i in range(MaxGuesses):
+            row = []
+            for j in range(Word_Length):
+                cell = tk.Label(
+                    self.window,
+                    width=4,
+                    height=2,
+                    relief="solid",
+                    font=("Arial", 24, "bold"),
+                    bg=BUTTON_COLOR
+                )
+                cell.grid(row=i, column=j, padx=2, pady=2)
+                row.append(cell)
+            self.cells.append(row)
+
+        # Creates keyboard
+        self.create_keyboard()
+
+        # Bind key presses
+        self.window.bind("<Key>", self.key_press)
+        self.window.bind("<Return>", self.check_guess)
+        self.window.bind("<BackSpace>", self.backspace)
+
+    def create_keyboard(self):
+        keyboard_layout = [
+            ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+            ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+            ["Z", "X", "C", "V", "B", "N", "M"]
+        ]
+
+        keyboard_frame = tk.Frame(self.window)
+        keyboard_frame.grid(row=MaxGuesses+1, columnspan=Word_Length)
+
+        for i, row in enumerate(keyboard_layout):
+            row_frame = tk.Frame(keyboard_frame)
+            row_frame.grid(row=i,column=0)
+
+            for letter in row:
+                button = tk.Button(
+                    row_frame,
+                    text=letter,
+                    width=4,
+                    height=2,
+                    bg=BUTTON_COLOR,
+                    command=lambda l=letter: self.key_press(type('Event', (), {'char' : l.lower()}))
+                )
+                button.pack(side=tk.LEFT, padx=1, pady=1)
     
-    return Username
+    def key_press(self, event):
+        if self.game_over:
+            return
+        
+        if event.char.isalpha() and self.current_col < Word_Length:
+            self.cells[self.current_row][self.current_col].config(text=event.char.upper())
+            self.current_col += 1
+    
+    def backspace(self, event):
+        if self.game_over:
+            return
+        
+        if self.current_col > 0:
+            self.current_col -= 1
+            self.cells[self.current_row][self.current_col].config(text="")
+    
+    def check_guess(self, event):
+        if self.game_over or self.current_col < Word_Length:
+            return
+
+        guess = "".join(cell["text"].lower() for cell in self.cells[self.current_row])
+
+        if guess not in self.word_list:
+            messagebox.showwarning("Error", "Word not found in dictionary.")
+            return
+        
+        # Check letters and update colors
+        for i in range(Word_Length):
+            if guess[i] == self.target_word[i]:
+                self.cells[self.current_row][i].config(bg=CORRECT_COLOR, fg="white")
+
+            elif guess[i] in self.target_word:
+                self.cells[self.current_row][i].config(bg=PRESENT_COLOR, fg="white")
+            else:
+                self.cells[self.current_row][i].config(bg=ABSENT_COLOR, fg="white")
+            
+
+        if guess == self.target_word:
+            self.game_over = True
+            time_taken = int(time.time() - self.time_start)
+            messagebox.showinfo("Congratulations!", f"You've guessed the word in {time_taken} seconds!")
+            return
+        
+        self.current_row += 1
+        self.current_col = 0
+
+        if self.current_row >= MaxGuesses:
+            self.game_over = True
+            messagebox.showinfo("Game Over", f"The correct word was: {self.target_word}")
+
+    def run(self):
+        self.window.mainloop()
+
+
 # Function to load words from the dictionary.txt file
 def load_words():
     Dictionary = open(r"dictionary.txt", mode="r")
@@ -40,108 +157,16 @@ def select_random_word(Wordset):
     ValidFiveLetters = FiveLetter
     return random.choice(FiveLetter)
 
-
-# Function to get the user's guess and ensure it is valid
-def get_guess():
-    global Guess
-    while True:
-        Guess = input("Please make your guess\n>")
-        Guess = Guess.lower()
-        return Guess
-
-# Function to provide feedback on the guess (clue generation)
-def provide_clue(Guess):
-    #checking for the correct characters in every slot ["*"]
-    handle_turns(Guess, ActualWord)
-    Clue = list("_____")
-    for i in range(len(Guess)):
-        if Guess[i] == ActualWord[i]:
-            Clue[i] = '*'
-
-    #checking for right letter wrong position ["+"]
-    for i in range(len(Guess)):
-        #check the character if it isnt already marked "*"
-        if Clue[i] == '_': 
-            if Guess[i] in ActualWord:
-                Clue[i] = '+' 
-    return "".join(Clue)
-
-# Function to handle the player's turn.
-# It can return if the guess was correct.
-# The clue and previous guesses.
-def handle_turns(guess, ActualWord):
-   while True:
-        if len(guess) != len(ActualWord):
-           return print("Error: Guess needs to be five letters long.")
-        elif guess not in ValidFiveLetters:
-            return print(f"Error: Word not found in dictionary.")
-        elif guess == ActualWord:
-            return print("Congratulations, the word is correct")
-
-# Function to display the game result (win/loss)
-def display_result(is_winner, answer):
-    global TimeTaken
-
-    # Win condition
-    if is_winner:
-        TimeEnd = time.time() 
-        print("Congratulations! You have won the game")
-        TimeTaken = int(TimeEnd - TimeStart)
-        print(f"Time taken:", TimeTaken, "Seconds")
-
-        # Opens the winners.txt file and enters the username and timetaken to solve the game.
-        with open(r"winners.txt", "a") as leaderboard_Winners:
-            leaderboard_Winners.write(f"{Username} | {TimeTaken} seconds\n")
-
-    else:
-        TimeEnd = time.time()
-        TimeTaken = int(TimeEnd - TimeStart)
-        print("You have lost the game")
-        print(f"The correct word was", answer)
-
-        # Opens the Losers.txt file and enters the username and timetaken at the attempt.
-        with open(r"Losers.txt", "a") as leaderboard_Losers:
-            leaderboard_Losers.write(f"{Username} | {TimeTaken} seconds\n")
-
-# Function to handle the player's decision to give up
-def give_up(ActualWord):
-    print("\nYou have chosen to exit, Thanks for playing")
-    print("The correct word was", ActualWord)
-
-
-
 # Function to handle the main game loop
 def main():
-    global ActualWord
-    global TimeStart
     print("<| Welcome to Wordle |>")
-    print("\n<<|To exit the game please type: [exit] |>>\n  ")
-    username_input()
+    print("\nYou have 6 attempts to guess the 5-letter word.\n")
 
-    # Getting the actual word for guessing
-    ActualWord = select_random_word(load_words())
+    game = WordleGUI()
 
     # Debug answer
-    print(ActualWord)
-    
-    # Starting a timer for the winning.txt file.
-    TimeStart = time.time()
+    print(game.target_word)
+    game.run()
 
-    # Guessing system for the game
-    GuessCount = MaxGuesses
-    while GuessCount != 0:
-        print("You have", GuessCount, "guesses left")
-        guess = get_guess()
-        if guess == ActualWord:
-            display_result(True, ActualWord)
-            return
-        elif guess == "exit":
-            give_up(ActualWord)
-            return
-        else:
-            print(provide_clue(guess))
-        GuessCount -= 1
-
-    display_result(False, ActualWord)
-
-main()
+if __name__ == "__main__":
+    main()
