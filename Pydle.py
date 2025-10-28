@@ -17,7 +17,10 @@ ABSENT_COLOR = "#787C7E"
 
 class WordleGUI:
 
+    # Initialize the GUI
     def __init__(self):
+
+        # Create the main window
         self.window = tk.Tk()
         self.window.title("Pydle")
         self.window.resizable(False, False)
@@ -56,6 +59,7 @@ class WordleGUI:
         self.window.bind("<Return>", self.check_guess)
         self.window.bind("<BackSpace>", self.backspace)
 
+    # Create a on-screen keyboard
     def create_keyboard(self):
         keyboard_layout = [
             ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -63,6 +67,7 @@ class WordleGUI:
             ["Z", "X", "C", "V", "B", "N", "M"]
         ]
 
+        # Create keyboard frame
         keyboard_frame = tk.Frame(self.window)
         keyboard_frame.grid(row=MaxGuesses+1, columnspan=Word_Length)
 
@@ -81,6 +86,7 @@ class WordleGUI:
                 )
                 button.pack(side=tk.LEFT, padx=1, pady=1)
     
+    # Handle key presses
     def key_press(self, event):
         if self.game_over:
             return
@@ -89,6 +95,7 @@ class WordleGUI:
             self.cells[self.current_row][self.current_col].config(text=event.char.upper())
             self.current_col += 1
     
+    # handles backspace key presses
     def backspace(self, event):
         if self.game_over:
             return
@@ -96,7 +103,8 @@ class WordleGUI:
         if self.current_col > 0:
             self.current_col -= 1
             self.cells[self.current_row][self.current_col].config(text="")
-    
+
+    # Checks the guess against the target word and updates the GUI.
     def check_guess(self, event):
         if self.game_over or self.current_col < Word_Length:
             return
