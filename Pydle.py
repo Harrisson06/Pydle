@@ -96,7 +96,7 @@ class WordleGUI:
             self.current_col += 1
     
     # handles backspace key presses
-    def backspace(self, event):
+    def backspace(self, event=None):
         if self.game_over:
             return
         
@@ -105,7 +105,7 @@ class WordleGUI:
             self.cells[self.current_row][self.current_col].config(text="")
 
     # Checks the guess against the target word and updates the GUI.
-    def check_guess(self, event):
+    def check_guess(self, event=None):
         if self.game_over or self.current_col < Word_Length:
             return
 
@@ -117,29 +117,53 @@ class WordleGUI:
         
         # Check letters and update colors
         for i in range(Word_Length):
+
+            # Correct letter and location
             if guess[i] == self.target_word[i]:
                 self.cells[self.current_row][i].config(bg=CORRECT_COLOR, fg="white")
 
+            # Correct letter and wrong location
             elif guess[i] in self.target_word:
                 self.cells[self.current_row][i].config(bg=PRESENT_COLOR, fg="white")
+
+            # Letter not in word
             else:
                 self.cells[self.current_row][i].config(bg=ABSENT_COLOR, fg="white")
             
 
+        # Check for win condition
         if guess == self.target_word:
             self.game_over = True
             time_taken = int(time.time() - self.time_start)
             messagebox.showinfo("Congratulations!", f"You've guessed the word in {time_taken} seconds!")
+            Winner_time = open(r"winners.txt", mode ="a")
+            Winner_time.write(f"User: {time_taken} seconds\n")
+            Winner_time.close()
+            self.play_again()
             return
         
         self.current_row += 1
         self.current_col = 0
 
+        # Check if the user has run out of guesses
         if self.current_row >= MaxGuesses:
             self.game_over = True
+            time_taken = int(time.time() - self.time_start)
             messagebox.showinfo("Game Over", f"The correct word was: {self.target_word}")
+            loser_time = open(r"Losers.txt", mode="a")
+            loser_time.write(f"User: {time_taken} seconds\n")
+            loser_time.close()
 
-    def run(self):
+
+    # Asks the user if they want to play again
+    def play_again(self):
+        if messagebox.askyesno("Game Over", "Do you want to play again?"):
+            self.window.destroy()
+            main()
+        else:
+            self.window.destroy()
+
+    def run(self, event=None):
         self.window.mainloop()
 
 
