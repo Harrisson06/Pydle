@@ -153,6 +153,7 @@ class WordleGUI:
             loser_time = open(r"Losers.txt", mode="a")
             loser_time.write(f"User: {time_taken} seconds\n")
             loser_time.close()
+            self .play_again()
 
 
     # Asks the user if they want to play again
@@ -166,27 +167,30 @@ class WordleGUI:
     def run(self, event=None):
         self.window.mainloop()
 
-
-# Function to load words from the dictionary.txt file
 def load_words():
-    Dictionary = open(r"dictionary.txt", mode="r")
-    #reading the file and giving it a variable name: text
-    text = Dictionary.readlines()
-    Dictionary.close()
-    #list of all words in the dictionary
-    Wordset = []
-    for strip in text:
-        Wordset.append(strip.strip().lower())
-    return Wordset
+    Dict4 = open(r"dictionary4.txt", mode="r")
+    Dict5 = open(r"dictionary5.txt", mode="r")
+    Dict6 = open(r"dictionary6.txt", mode="r")
+
+    # Reading the files and creating word sets
+    FourLetterWords = [word.strip().lower() for word in Dict4.readlines()]
+    FiveLetterWords = [word.strip().lower() for word in Dict5.readlines()]
+    SixLetterWords = [word.strip().lower() for word in Dict6.readlines()]
+
+    Dict4.close()
+    Dict5.close()
+    Dict6.close()
+
+    return FourLetterWords, FiveLetterWords, SixLetterWords
 
 # Function to select a random word of the specified length from the words_list
 def select_random_word(Wordset):
     global ValidFiveLetters
+
     FiveLetter = []
     for Word in Wordset:
         if len(Word) == 5:
             FiveLetter.append(Word)
-    ValidFiveLetters = FiveLetter
     return random.choice(FiveLetter)
 
 # Function to handle the main game loop
