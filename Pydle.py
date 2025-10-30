@@ -9,10 +9,10 @@ from tkinter import messagebox
 
 # Constants
 MaxGuesses = 6
-BUTTON_COLOR = "#D3D6DA"
-CORRECT_COLOR = "#6AAA64"
-PRESENT_COLOR = "#C9B458"
-ABSENT_COLOR = "#787C7E"
+BUTTON_COLOUR = "#D3D6DA"
+CORRECT_COLOUR = "#6AAA64"
+PRESENT_COLOUR = "#C9B458"
+ABSENT_COLOUR = "#787C7E"
 
 class WordLengthSelector:
     def __init__(self):
@@ -52,6 +52,7 @@ class WordleGUI:
     # Initialize the GUIw
     def __init__(self, word_length):
         self.word_length = word_length
+        self.keyboard_buttons = {}
 
         self.window = tk.Tk()
         self.window.title(f"Pydle - {self.word_length} Letters")
@@ -85,7 +86,7 @@ class WordleGUI:
                     height=2,
                     relief="solid",
                     font=("Arial", 24, "bold"),
-                    bg=BUTTON_COLOR
+                    bg=BUTTON_COLOUR
                 )
                 cell.grid(row=i, column=j, padx=2, pady=2)
                 row.append(cell)
@@ -121,11 +122,11 @@ class WordleGUI:
                     text=letter,
                     width=4,
                     height=2,
-                    bg=BUTTON_COLOR,
+                    bg=BUTTON_COLOUR,
                     command=lambda l=letter: self.key_press(type('Event', (), {'char' : l.lower()}))
                 )
                 button.pack(side=tk.LEFT, padx=1, pady=1)
-    
+                self.keyboard_buttons[letter.lower()] = button
     # Handle key presses
     def key_press(self, event):
         if self.game_over:
@@ -154,21 +155,40 @@ class WordleGUI:
         if guess not in self.word_list:
             messagebox.showwarning("Error", "Word not found in dictionary.")
             return
-        
-        # Check letters and update colors
+
+        remaining_letters = list(self.target_word)
+
+        # Check letters and update colours
         for i in range(self.word_length):
 
-            # Correct letter and location
+            # First loop for correct letters and correct pos.
             if guess[i] == self.target_word[i]:
-                self.cells[self.current_row][i].config(bg=CORRECT_COLOR, fg="white")
+                self.cells[self.current_row][i].config(bg=CORRECT_COLOUR, fg="white")
+                self.keyboard_buttons[guess[i]].config(bg=CORRECT_COLOUR, fg="white")
+                if guess[i] in remaining_letters:
+                    remaining_letters.remove(guess[i])
 
+            # Second loop for present letters
+            for i in range(self.word_length):
+                letter = guess[i]
+                if letter != self.target_word[i]: 
+                    if letter in remaining_letters:
+                        self.cells[self.current_row][i].config(bg=PRESENT_COLOUR, fg="white")
+                        
+                        if self.keyboard_buttons[letter]['bg'] == BUTTON_COLOUR:
+                            self.keyboard_buttons[letter].config(bg=PRESENT_COLOUR, fg="white")
+                        remaining_letters.remove(letter)
+                    else:
+                        self.cells[self.current_row][i].config(bg=ABSENT_COLOUR, fg="white")
+                        if self.keyboard_buttons[letter]['bg'] in [BUTTON_COLOUR]:
+                            self.keyboard_buttons[letter].config(bg=ABSENT_COLOUR, fg="white")
             # Correct letter and wrong location
-            elif guess[i] in self.target_word:
-                self.cells[self.current_row][i].config(bg=PRESENT_COLOR, fg="white")
+            if guess[i] in self.target_word:
+                self.cells[self.current_row][i].config(bg=PRESENT_COLOUR, fg="white")
 
             # Letter not in word
             else:
-                self.cells[self.current_row][i].config(bg=ABSENT_COLOR, fg="white")
+                self.cells[self.current_row][i].config(bg=ABSENT_COLOUR, fg="white")
             
 
         # Check for win condition
