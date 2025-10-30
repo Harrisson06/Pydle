@@ -9,36 +9,76 @@ from tkinter import messagebox
 
 # Constants
 MaxGuesses = 6
-Word_Length = 5
 BUTTON_COLOR = "#D3D6DA"
 CORRECT_COLOR = "#6AAA64"
 PRESENT_COLOR = "#C9B458"
 ABSENT_COLOR = "#787C7E"
 
+class WordLengthSelector:
+    def __init__(self):
+        self.window = tk.Tk()
+        self.window.title("Pydle - Select Word Length")
+        self.window.geometry("300x200")
+        self.selected_length = None
+
+        Welcome_lable = tk.Label(
+            self.window,
+            text="Welcome to Pydle\nSelect word Length:",
+            font=("Arial", 14),
+            pady=20
+        )
+        Welcome_lable.pack()
+
+        for length in [4, 5, 6]:
+            btn = tk.Button(
+                self.window,
+                text=f"{length} Letters",
+                width=20,
+                command=lambda l=length: self.select_length(l)
+            )
+            btn.pack(pady=5)
+
+    def select_length(self, length):
+        self.selected_length = length
+        self.window.destroy()
+        
+    def get_selection(self):
+        self.window.mainloop()
+        return self.selected_length
+
+
 class WordleGUI:
 
-    # Initialize the GUI
-    def __init__(self):
+    # Initialize the GUIw
+    def __init__(self, word_length):
+        self.word_length = word_length
 
-        # Create the main window
         self.window = tk.Tk()
-        self.window.title("Pydle")
+        self.window.title(f"Pydle - {self.word_length} Letters")
         self.window.resizable(False, False)
 
         self.current_row = 0
         self.current_col = 0
         self.game_over = False
 
-        # Load words and select target word
-        self.word_list = load_words()
-        self.target_word = select_random_word(self.word_list)
+        if self.word_length == 4:
+            fname = r"dictionary4.txt"
+        elif self.word_length == 5:
+            fname = r"dictionary5.txt"
+        elif self.word_length == 6:
+            fname = r"dictionary6.txt"
+
+        with open(fname, "r") as f:
+            self.word_list = [word.strip().lower() for word in f.readlines()]
+
+        self.target_word = select_random_word(self.word_list, self.word_length)
         self.time_start = time.time()
 
-        # Create the grid.
+                # Create the grid.
         self.cells = []
         for i in range(MaxGuesses):
             row = []
-            for j in range(Word_Length):
+            for j in range(self.word_length):
                 cell = tk.Label(
                     self.window,
                     width=4,
@@ -69,7 +109,7 @@ class WordleGUI:
 
         # Create keyboard frame
         keyboard_frame = tk.Frame(self.window)
-        keyboard_frame.grid(row=MaxGuesses+1, columnspan=Word_Length)
+        keyboard_frame.grid(row=MaxGuesses+1, columnspan=self.word_length)
 
         for i, row in enumerate(keyboard_layout):
             row_frame = tk.Frame(keyboard_frame)
@@ -90,8 +130,8 @@ class WordleGUI:
     def key_press(self, event):
         if self.game_over:
             return
-        
-        if event.char.isalpha() and self.current_col < Word_Length:
+
+        if event.char.isalpha() and self.current_col < self.word_length:
             self.cells[self.current_row][self.current_col].config(text=event.char.upper())
             self.current_col += 1
     
@@ -106,7 +146,7 @@ class WordleGUI:
 
     # Checks the guess against the target word and updates the GUI.
     def check_guess(self, event=None):
-        if self.game_over or self.current_col < Word_Length:
+        if self.game_over or self.current_col < self.word_length:
             return
 
         guess = "".join(cell["text"].lower() for cell in self.cells[self.current_row])
@@ -116,7 +156,7 @@ class WordleGUI:
             return
         
         # Check letters and update colors
-        for i in range(Word_Length):
+        for i in range(self.word_length):
 
             # Correct letter and location
             if guess[i] == self.target_word[i]:
@@ -167,42 +207,44 @@ class WordleGUI:
     def run(self, event=None):
         self.window.mainloop()
 
-def load_words():
-    Dict4 = open(r"dictionary4.txt", mode="r")
-    Dict5 = open(r"dictionary5.txt", mode="r")
-    Dict6 = open(r"dictionary6.txt", mode="r")
+# Selected length is used to open, read and close dictionary to a variable
+# Selected dict then makes a random word to a variable
+def select_random_word(Wordset, length=None):
+    if length is None:
+        return random.choice(Wordset)
 
-    # Reading the files and creating word sets
-    FourLetterWords = [word.strip().lower() for word in Dict4.readlines()]
-    FiveLetterWords = [word.strip().lower() for word in Dict5.readlines()]
-    SixLetterWords = [word.strip().lower() for word in Dict6.readlines()]
-
-    Dict4.close()
-    Dict5.close()
-    Dict6.close()
-
-    return FourLetterWords, FiveLetterWords, SixLetterWords
-
-# Function to select a random word of the specified length from the words_list
-def select_random_word(Wordset):
-    global ValidFiveLetters
-
-    FiveLetter = []
-    for Word in Wordset:
-        if len(Word) == 5:
-            FiveLetter.append(Word)
-    return random.choice(FiveLetter)
+    if length == 4:
+        dict4 = open(r"dictionary4.txt", mode="r")
+        FourLetterWords = [word.strip().lower() for word in dict4.readlines()]
+        dict4.close()
+        return random.choice(FourLetterWords)
+    
+    elif length == 5:
+        dict5 = open(r"dictionary5.txt", mode="r")
+        FiveLetterWords = [word.strip().lower() for word in dict5.readlines()]
+        dict5.close()
+        return random.choice(FiveLetterWords)
+    
+    elif length == 6:
+        dict6 = open(r"dictionary6.txt", mode="r")
+        SixLetterWords = [word.strip().lower() for word in dict6.readlines()]
+        dict6.close()
+        return random.choice(SixLetterWords)
 
 # Function to handle the main game loop
 def main():
-    print("<| Welcome to Wordle |>")
-    print("\nYou have 6 attempts to guess the 5-letter word.\n")
+    Selector = WordLengthSelector()
+    word_length = Selector.get_selection()
+    
+    if word_length:
+        print("<| Welcome to Wordle |>")
+        print(f"\nYou have 6 attempts to guess the {word_length}-letter word.\n")
 
-    game = WordleGUI()
+        game = WordleGUI(word_length)
 
-    # Debug answer
-    print(game.target_word)
-    game.run()
+        # Debug answer
+        print(game.target_word)
+        game.run()
 
 if __name__ == "__main__":
     main()
